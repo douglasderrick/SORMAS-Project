@@ -14,14 +14,8 @@
  */
 package de.symeda.sormas.backend.infrastructure.facility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -35,9 +29,10 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
-
+import de.symeda.sormas.api.disease.DiseaseConfigurationDto;
+import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
+import de.symeda.sormas.backend.disease.DiseaseConfiguration;
 import org.apache.commons.collections.CollectionUtils;
-
 import de.symeda.sormas.api.ReferenceDto;
 import de.symeda.sormas.api.common.Page;
 import de.symeda.sormas.api.i18n.I18nProperties;
@@ -54,7 +49,6 @@ import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.api.utils.SortProperty;
 import de.symeda.sormas.api.utils.ValidationRuntimeException;
-import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.feature.FeatureConfigurationFacadeEjb.FeatureConfigurationFacadeEjbLocal;
 import de.symeda.sormas.backend.infrastructure.AbstractInfrastructureFacadeEjb;
 import de.symeda.sormas.backend.infrastructure.community.Community;
@@ -71,8 +65,7 @@ import de.symeda.sormas.backend.util.DtoHelper;
 import de.symeda.sormas.backend.util.QueryHelper;
 
 @Stateless(name = "FacilityFacade")
-public class FacilityFacadeEjb
-	extends AbstractInfrastructureFacadeEjb<Facility, FacilityDto, FacilityIndexDto, FacilityReferenceDto, FacilityService, FacilityCriteria>
+public class FacilityFacadeEjb extends AbstractInfrastructureFacadeEjb<Facility,  FacilityDto, FacilityIndexDto, FacilityReferenceDto, FacilityService, FacilityCriteria>
 	implements FacilityFacade {
 
 	@EJB
@@ -132,6 +125,12 @@ public class FacilityFacadeEjb
 	public List<FacilityReferenceDto> getAllActiveLaboratories(boolean includeOtherFacility) {
 
 		List<Facility> laboratories = service.getAllActiveLaboratories(includeOtherFacility);
+		return laboratories.stream().map(FacilityFacadeEjb::toReferenceDto).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<FacilityReferenceDto> getAllActiveFacilityByDisease(String diseaseName) {
+		List<Facility> laboratories = service.getAllActiveFacilityByDisease(diseaseName);
 		return laboratories.stream().map(FacilityFacadeEjb::toReferenceDto).collect(Collectors.toList());
 	}
 
@@ -279,7 +278,6 @@ public class FacilityFacadeEjb
 			.map(FacilityFacadeEjb::toReferenceDto)
 			.collect(Collectors.toList());
 	}
-
 	@Override
 	public Page<FacilityIndexDto> getIndexPage(FacilityCriteria criteria, Integer offset, Integer size, List<SortProperty> sortProperties) {
 		List<FacilityIndexDto> facilityIndexList = getIndexList(criteria, offset, size, sortProperties);
@@ -364,7 +362,6 @@ public class FacilityFacadeEjb
 
 		FacilityDto dto = new FacilityDto();
 		DtoHelper.fillDto(dto, entity);
-
 		dto.setName(entity.getName());
 		dto.setType(entity.getType());
 		dto.setPublicOwnership(entity.isPublicOwnership());
@@ -386,7 +383,22 @@ public class FacilityFacadeEjb
 		dto.setArchived(entity.isArchived());
 		dto.setExternalID(entity.getExternalID());
 		dto.setCentrallyManaged(entity.isCentrallyManaged());
-
+		dto.setDiseases(entity.getDiseases().stream()
+				.map(disease -> {
+					DiseaseConfigurationDto diseaseDto = new DiseaseConfigurationDto();
+					diseaseDto.setDisease(disease.getDisease());
+					diseaseDto.setActive(disease.getActive());
+					diseaseDto.setPrimaryDisease(disease.getPrimaryDisease());
+					diseaseDto.setCaseBased(disease.getCaseBased());
+					diseaseDto.setFollowUpEnabled(disease.getFollowUpEnabled());
+					diseaseDto.setFollowUpDuration(disease.getFollowUpDuration());
+					diseaseDto.setCaseFollowUpDuration(disease.getCaseFollowUpDuration());
+					diseaseDto.setEventParticipantFollowUpDuration(disease.getEventParticipantFollowUpDuration());
+					diseaseDto.setExtendedClassification(disease.getExtendedClassification());
+					diseaseDto.setExtendedClassificationMulti(disease.getExtendedClassificationMulti());
+					return diseaseDto;
+				})
+				.collect(Collectors.toSet()));
 		return dto;
 	}
 
@@ -616,12 +628,19 @@ public class FacilityFacadeEjb
 		target.setContactPersonEmail(source.getContactPersonEmail());
 		target.setLatitude(source.getLatitude());
 		target.setLongitude(source.getLongitude());
-
 		target.setType(source.getType());
 		target.setArchived(source.isArchived());
 		target.setExternalID(source.getExternalID());
 		target.setCentrallyManaged(source.isCentrallyManaged());
+		target.setDiseases(source.getDiseases().stream().map(diseaseDto -> {
+			return mapDtoToEntity(diseaseDto);
+		}).collect(Collectors.toSet()));
 		return target;
+	}
+
+	private DiseaseConfiguration mapDtoToEntity(DiseaseConfigurationDto dto) {
+		DiseaseConfiguration config = service.getDiseaseByName(dto.getDisease().getName());
+		return config;
 	}
 
 	@LocalBean

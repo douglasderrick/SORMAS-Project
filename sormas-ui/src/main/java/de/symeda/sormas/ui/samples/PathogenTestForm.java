@@ -23,12 +23,10 @@ import static de.symeda.sormas.ui.utils.CssStyles.VSPACE_TOP_4;
 import static de.symeda.sormas.ui.utils.LayoutUtil.fluidRowLocs;
 import static de.symeda.sormas.ui.utils.LayoutUtil.loc;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
+import com.vaadin.ui.Notification;
 import org.apache.commons.collections.CollectionUtils;
 
 import com.vaadin.ui.Label;
@@ -101,6 +99,8 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 	private ComboBox pcrTestSpecification;
 	private TextField typingIdField;
 
+
+
 	public PathogenTestForm(SampleDto sample, boolean create, int caseSampleCount, boolean isPseudonymized) {
 		super(
 			PathogenTestDto.class,
@@ -153,7 +153,6 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 					I18nProperties.getPrefixCaption(SampleDto.I18N_PREFIX, SampleDto.SAMPLE_DATE_TIME),
 					DateFormatHelper.formatDate(sample.getSampleDateTime()))));
 		ComboBox lab = addInfrastructureField(PathogenTestDto.LAB);
-		lab.addItems(FacadeProvider.getFacilityFacade().getAllActiveLaboratories(true));
 		TextField labDetails = addField(PathogenTestDto.LAB_DETAILS, TextField.class);
 		labDetails.setVisible(false);
 		typingIdField = addField(PathogenTestDto.TYPING_ID, TextField.class);
@@ -247,6 +246,9 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 		diseaseField.addValueChangeListener((ValueChangeListener) valueChangeEvent -> {
 			Disease disease = (Disease) valueChangeEvent.getProperty().getValue();
 			updateDiseaseVariantField.accept(disease);
+			String diseaseName = disease.getName();
+			lab.removeAllItems();
+			lab.addItems(FacadeProvider.getFacilityFacade().getAllActiveFacilityByDisease(diseaseName));
 
 			FieldHelper.updateItems(
 				testTypeField,
@@ -254,6 +256,7 @@ public class PathogenTestForm extends AbstractEditForm<PathogenTestDto> {
 				FieldVisibilityCheckers.withDisease(disease),
 				PathogenTestType.class);
 		});
+
 		diseaseVariantField.addValueChangeListener(e -> {
 			DiseaseVariant diseaseVariant = (DiseaseVariant) e.getProperty().getValue();
 			diseaseVariantDetailsField.setVisible(diseaseVariant != null && diseaseVariant.matchPropertyValue(DiseaseVariant.HAS_DETAILS, true));

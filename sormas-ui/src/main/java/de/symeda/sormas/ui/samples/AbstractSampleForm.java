@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.v7.data.Property;
 import com.vaadin.v7.ui.AbstractField;
 import com.vaadin.v7.ui.CheckBox;
@@ -71,6 +72,7 @@ public abstract class AbstractSampleForm extends AbstractEditForm<SampleDto> {
 	protected static final String REQUESTED_ADDITIONAL_TESTS_READ_LOC = "requestedAdditionalTestsReadLoc";
 	protected static final String REPORT_INFO_LABEL_LOC = "reportInfoLabelLoc";
 	protected static final String REFERRED_FROM_BUTTON_LOC = "referredFromButtonLoc";
+	private ComboBox lab;
 
 	//@formatter:off
     protected static final String SAMPLE_COMMON_HTML_LAYOUT =
@@ -135,8 +137,9 @@ public abstract class AbstractSampleForm extends AbstractEditForm<SampleDto> {
 		addDateField(SampleDto.SHIPMENT_DATE, DateField.class, 7);
 		addField(SampleDto.SHIPMENT_DETAILS, TextField.class);
 		addField(SampleDto.RECEIVED_DATE, DateField.class);
-		final ComboBox lab = addInfrastructureField(SampleDto.LAB);
-		lab.addItems(FacadeProvider.getFacilityFacade().getAllActiveLaboratories(true));
+		//final ComboBox lab = addInfrastructureField(SampleDto.LAB);
+		lab = addInfrastructureField(SampleDto.LAB);
+		//lab.addItems(FacadeProvider.getFacilityFacade().getAllActiveLaboratories(true));
 		final TextField labDetails = addField(SampleDto.LAB_DETAILS, TextField.class);
 		labDetails.setVisible(false);
 		lab.addValueChangeListener(event -> updateLabDetailsVisibility(labDetails, event));
@@ -184,6 +187,7 @@ public abstract class AbstractSampleForm extends AbstractEditForm<SampleDto> {
 			final ContactReferenceDto associatedContact = getValue().getAssociatedContact();
 			if (associatedContact != null && UserProvider.getCurrent().hasAllUserRights(UserRight.CONTACT_VIEW)) {
 				disease = FacadeProvider.getContactFacade().getByUuid(associatedContact.getUuid()).getDisease();
+
 			}
 		}
 
@@ -202,6 +206,10 @@ public abstract class AbstractSampleForm extends AbstractEditForm<SampleDto> {
 
 		if (disease != Disease.NEW_INFLUENZA) {
 			getField(SampleDto.SAMPLE_SOURCE).setVisible(false);
+		}
+
+		if(disease != null) {
+			lab.addItems(FacadeProvider.getFacilityFacade().getAllActiveFacilityByDisease(disease.getName()));
 		}
 
 		UserReferenceDto reportingUser = getValue().getReportingUser();
