@@ -18,11 +18,16 @@
 package de.symeda.sormas.api.infrastructure.facility;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
+import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.HasUuid;
+import de.symeda.sormas.api.disease.DiseaseConfigurationDto;
 import de.symeda.sormas.api.infrastructure.community.CommunityReferenceDto;
 import de.symeda.sormas.api.infrastructure.district.DistrictReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.utils.Diseases;
 import org.apache.commons.lang3.StringUtils;
 
 public class FacilityIndexDto implements Serializable, HasUuid {
@@ -39,6 +44,7 @@ public class FacilityIndexDto implements Serializable, HasUuid {
 	public static final String LONGITUDE = "longitude";
 	public static final String TYPE = "type";
 	public static final String EXTERNAL_ID = "externalID";
+	public static final String DISEASES = "diseases";
 
 	private String uuid;
 	private String name;
@@ -50,6 +56,7 @@ public class FacilityIndexDto implements Serializable, HasUuid {
 	private Double latitude;
 	private Double longitude;
 	private String externalID;
+	private String diseases;
 
 	public FacilityIndexDto(
 		String uuid,
@@ -82,6 +89,7 @@ public class FacilityIndexDto implements Serializable, HasUuid {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.externalID = externalID;
+
 	}
 
 	@Override
@@ -178,4 +186,14 @@ public class FacilityIndexDto implements Serializable, HasUuid {
 	public FacilityReferenceDto toReference() {
 		return new FacilityReferenceDto(getUuid(), getCaption(), getExternalID());
 	}
+	public String getDiseases() {
+		return diseases;
+	}
+
+	public void setDiseases(String diseases) {
+		this.diseases = diseases;
+	}
+
+
+
 }

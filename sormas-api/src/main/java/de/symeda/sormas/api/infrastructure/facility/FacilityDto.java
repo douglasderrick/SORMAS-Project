@@ -120,6 +120,7 @@ public class FacilityDto extends InfrastructureDto {
 		this.diseases = diseases;
 	}
 
+
 	public FacilityDto(
 		Date creationDate,
 		Date changeDate,

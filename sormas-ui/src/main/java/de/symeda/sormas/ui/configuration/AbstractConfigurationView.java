@@ -15,8 +15,12 @@
 
 package de.symeda.sormas.ui.configuration;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
+import com.explicatis.ext_token_field.Tokenizable;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.ui.Layout;
 import com.vaadin.v7.ui.ComboBox;
@@ -26,7 +30,9 @@ import de.symeda.sormas.api.feature.FeatureType;
 import de.symeda.sormas.api.i18n.I18nProperties;
 import de.symeda.sormas.api.infrastructure.country.CountryReferenceDto;
 import de.symeda.sormas.api.infrastructure.region.RegionReferenceDto;
+import de.symeda.sormas.api.statistics.StatisticsGroupingKey;
 import de.symeda.sormas.api.user.UserRight;
+import de.symeda.sormas.api.utils.DataHelper;
 import de.symeda.sormas.ui.SubMenu;
 import de.symeda.sormas.ui.UserProvider;
 import de.symeda.sormas.ui.configuration.docgeneration.DocumentTemplatesView;
@@ -43,6 +49,7 @@ import de.symeda.sormas.ui.configuration.infrastructure.SubcontinentsView;
 import de.symeda.sormas.ui.configuration.infrastructure.components.CountryCombo;
 import de.symeda.sormas.ui.configuration.linelisting.LineListingConfigurationView;
 import de.symeda.sormas.ui.configuration.outbreak.OutbreaksView;
+import de.symeda.sormas.ui.statistics.StatisticsFilterElement;
 import de.symeda.sormas.ui.utils.AbstractSubNavigationView;
 import de.symeda.sormas.ui.utils.ComboBoxHelper;
 import de.symeda.sormas.ui.utils.DirtyStateComponent;
@@ -234,4 +241,47 @@ public abstract class AbstractConfigurationView extends AbstractSubNavigationVie
 		}
 		return countryFilter != null ? countryFilter : ComboBoxHelper.createComboBoxV7();
 	}
+
+	public static class TokenizableValue implements Tokenizable {
+
+		private final Object value;
+		private final String stringRepresentation;
+		private final long id;
+
+		public TokenizableValue(Object value, long id) {
+			this.value = value;
+			stringRepresentation = null;
+			this.id = id;
+		}
+
+		public TokenizableValue(Object value, String stringRepresentation, long id) {
+			this.value = value;
+			this.stringRepresentation = stringRepresentation;
+			this.id = id;
+		}
+
+		public Object getValue() {
+			return value;
+		}
+
+		@Override
+		public String getStringValue() {
+			if (stringRepresentation != null) {
+				return stringRepresentation;
+			} else {
+				return DataHelper.toStringNullable(value);
+			}
+		}
+
+		@Override
+		public long getIdentifier() {
+			return id;
+		}
+
+		@Override
+		public String toString() {
+			return getStringValue();
+		}
+	}
+
 }
