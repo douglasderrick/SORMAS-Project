@@ -24,6 +24,7 @@ import javax.persistence.criteria.*;
 import javax.validation.constraints.NotNull;
 
 import de.symeda.sormas.api.disease.DiseaseConfigurationDto;
+import de.symeda.sormas.api.i18n.Strings;
 import de.symeda.sormas.backend.common.CriteriaBuilderHelper;
 import de.symeda.sormas.backend.disease.DiseaseConfiguration;
 import org.apache.commons.collections.CollectionUtils;
@@ -511,9 +512,13 @@ public class FacilityFacadeEjb extends
 			} else {
 				diseases = facilityEntity.getDiseases().stream()
 						.map(disease -> {
-							return disease.getDisease().getName();
+							return I18nProperties.getEnumCaption(disease.getDisease());
 						})
 						.collect(Collectors.joining(", "));
+			}
+
+			if(diseases.isEmpty()) {
+				diseases = I18nProperties.getString(Strings.infoNoAssignedDiseases);
 			}
 			facilityIndexDto.setDiseases(diseases);
 		}

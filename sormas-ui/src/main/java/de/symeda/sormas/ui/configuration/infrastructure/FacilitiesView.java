@@ -355,7 +355,7 @@ public class FacilitiesView extends AbstractConfigurationView {
 
 				diseaseTokenField = new ExtTokenField();
 				diseaseTokenField.setId("diseasesTokens");
-				diseaseTokenField.setCaption(I18nProperties.getCaption(I18nProperties.getCaption(Strings.entityFacilities)));
+				diseaseTokenField.setCaption(I18nProperties.getCaption(Captions.Facility_Diseases));
 				diseaseTokenField.setEnableDefaultDeleteTokenAction(true);
 				diseaseTokenField.setWidth(200, Unit.PIXELS);
 
