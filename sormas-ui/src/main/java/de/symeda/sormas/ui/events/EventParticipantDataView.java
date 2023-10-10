@@ -134,16 +134,6 @@ public class EventParticipantDataView extends AbstractDetailView<EventParticipan
 		EventDto event = FacadeProvider.getEventFacade().getEventByUuid(eventParticipant.getEvent().getUuid(), false);
 
 		SampleCriteria sampleCriteria = new SampleCriteria().eventParticipant(eventParticipantRef);
-		if (UserProvider.getCurrent().hasUserRight(UserRight.SAMPLE_VIEW)) {
-			SampleListComponent sampleList = new SampleListComponent(
-				sampleCriteria.eventParticipant(eventParticipantRef)
-					.disease(event.getDisease())
-					.sampleAssociationType(SampleAssociationType.EVENT_PARTICIPANT),
-				this::showUnsavedChangesPopup);
-			SampleListComponentLayout sampleListComponentLayout =
-				new SampleListComponentLayout(sampleList, I18nProperties.getString(Strings.infoCreateNewSampleDiscardsChangesEventParticipant));
-			layout.addSidePanelComponent(sampleListComponentLayout, SAMPLES_LOC);
-		}
 
 		if (UserProvider.getCurrent().hasUserRight(UserRight.CONTACT_VIEW)) {
 			VerticalLayout contactsLayout = new VerticalLayout();
@@ -226,13 +216,20 @@ public class EventParticipantDataView extends AbstractDetailView<EventParticipan
 			eventParticipantDto.getEvent().getUuid(),
 			true);
 
+
 		if (FacadeProvider.getFeatureConfigurationFacade().isFeatureEnabled(FeatureType.EXTERNAL_MESSAGES)
 			&& UserProvider.getCurrent().hasUserRight(UserRight.EXTERNAL_MESSAGE_VIEW)
 			&& FacadeProvider.getExternalMessageFacade().existsExternalMessageForEntity(getReference())) {
 			menu.addView(ExternalMessagesView.VIEW_NAME, I18nProperties.getCaption(Captions.externalMessagesList));
 		}
 
+
+
 		menu.addView(EventParticipantDataView.VIEW_NAME, I18nProperties.getCaption(EventParticipantDto.I18N_PREFIX), params);
+
+		if (UserProvider.getCurrent().hasUserRight(UserRight.SAMPLE_VIEW)) {
+			menu.addView(EventSamplesView.VIEW_NAME, I18nProperties.getCaption(Captions.eventEventParticipantsSamples), params);
+		}
 
 		setMainHeaderComponent(ControllerProvider.getEventParticipantController().getEventParticipantViewTitleLayout(eventParticipantDto));
 	}
