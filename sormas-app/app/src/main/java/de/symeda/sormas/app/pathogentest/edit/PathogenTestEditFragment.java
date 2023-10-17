@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import android.provider.ContactsContract;
 import android.view.View;
 
 import de.symeda.sormas.api.Disease;
@@ -93,6 +94,7 @@ public class PathogenTestEditFragment extends BaseEditFragment<FragmentPathogenT
 		sample = record.getSample();
 		testTypeList = DataUtils.getEnumItems(PathogenTestType.class, true, getFieldVisibilityCheckers());
 		pcrTestSpecificationList = DataUtils.getEnumItems(PCRTestSpecification.class, true);
+		labList = DatabaseHelper.getFacilityDao().getActiveLaboratories(true);
 
 		List<Disease> diseases = DiseaseConfigurationCache.getInstance().getAllDiseases(true, true, true);
 		diseaseList = DataUtils.toItems(diseases);
@@ -110,7 +112,7 @@ public class PathogenTestEditFragment extends BaseEditFragment<FragmentPathogenT
 		testResultList = DataUtils.toItems(
 			Arrays.stream(PathogenTestResultType.values()).filter(type -> type != PathogenTestResultType.NOT_DONE).collect(Collectors.toList()),
 			true);
-		labList = DatabaseHelper.getFacilityDao().getActiveLaboratories(true);
+		//labList = DatabaseHelper.getFacilityDao().getActiveLaboratories(true);
 	}
 
 	@Override
@@ -161,6 +163,11 @@ public class PathogenTestEditFragment extends BaseEditFragment<FragmentPathogenT
 					getContentBinding().pathogenTestPcrTestSpecification.hideField(false);
 				}
 
+
+				if (contentBinding.pathogenTestTestedDisease.getValue() != null) {
+					labList = DatabaseHelper.getFacilityDao().getActiveLaboratoriesByDisease((Disease) contentBinding.pathogenTestTestedDisease.getValue(), true);
+					contentBinding.pathogenTestLab.setSpinnerData(DataUtils.toItems(labList));
+				}
 				if (this.currentDisease == null || contentBinding.pathogenTestTestedDisease.getValue() != currentDisease) {
 					updateDiseaseVariantsField(contentBinding);
 				}

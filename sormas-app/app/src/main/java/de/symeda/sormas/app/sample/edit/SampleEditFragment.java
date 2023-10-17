@@ -52,6 +52,7 @@ import de.symeda.sormas.app.R;
 import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.config.ConfigProvider;
 import de.symeda.sormas.app.backend.facility.Facility;
+import de.symeda.sormas.app.backend.facility.FacilityDtoHelper;
 import de.symeda.sormas.app.backend.sample.AdditionalTest;
 import de.symeda.sormas.app.backend.sample.PathogenTest;
 import de.symeda.sormas.app.backend.sample.Sample;
@@ -169,7 +170,7 @@ public class SampleEditFragment extends BaseEditFragment<FragmentSampleEditLayou
 
 		sampleMaterialList = DataUtils.getEnumItems(SampleMaterial.class, true, getFieldVisibilityCheckers());
 		sampleSourceList = DataUtils.getEnumItems(SampleSource.class, true);
-		labList = DatabaseHelper.getFacilityDao().getActiveLaboratories(true);
+		labList = DatabaseHelper.getFacilityDao().getActiveLaboratoriesByDisease(getDiseaseOfAssociatedEntity(record), true);
 		samplePurposeList = DataUtils.getEnumItems(SamplePurpose.class, true);
 		samplingReasonList = DataUtils.getEnumItems(SamplingReason.class, true, getFieldVisibilityCheckers());
 

@@ -15,9 +15,11 @@
 
 package de.symeda.sormas.app.backend.facility;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
@@ -26,14 +28,25 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.Where;
 
 import android.util.Log;
+
+import de.symeda.sormas.api.Disease;
 import de.symeda.sormas.api.infrastructure.facility.FacilityDto;
+import de.symeda.sormas.api.infrastructure.facility.FacilityReferenceDto;
 import de.symeda.sormas.api.infrastructure.facility.FacilityType;
 import de.symeda.sormas.app.backend.common.AbstractDomainObject;
 import de.symeda.sormas.app.backend.common.AbstractInfrastructureAdoDao;
+import de.symeda.sormas.app.backend.common.DatabaseHelper;
 import de.symeda.sormas.app.backend.common.InfrastructureAdo;
+import de.symeda.sormas.app.backend.disease.DiseaseConfiguration;
+import de.symeda.sormas.app.backend.disease.DiseaseConfigurationDao;
 import de.symeda.sormas.app.backend.region.Community;
 import de.symeda.sormas.app.backend.region.District;
 import de.symeda.sormas.app.backend.region.Region;
+import de.symeda.sormas.app.backend.user.UserRoleDtoHelper;
+import de.symeda.sormas.app.rest.NoConnectionException;
+import de.symeda.sormas.app.rest.RetroProvider;
+import de.symeda.sormas.app.rest.ServerCommunicationException;
+import retrofit2.Call;
 
 public class FacilityDao extends AbstractInfrastructureAdoDao<Facility> {
 
@@ -174,6 +187,16 @@ public class FacilityDao extends AbstractInfrastructureAdoDao<Facility> {
 			Log.e(getTableName(), "Could not perform queryForEq");
 			throw new RuntimeException(e);
 		}
+	}
+
+	public List<Facility> getActiveLaboratoriesByDisease(Disease disease, boolean includeOtherFacility) {
+		DiseaseConfiguration diseaseConfiguration = DatabaseHelper.getDiseaseConfigurationDao().getDiseaseConfiguration(disease);
+		List<Facility> facilities = DatabaseHelper.getDiseaseConfigurationDao().getDiseaseFacilities(diseaseConfiguration);
+
+		if (facilities.size() < 1) {
+			facilities = getActiveLaboratories(true);
+		}
+		return facilities;
 	}
 
 	@Override
