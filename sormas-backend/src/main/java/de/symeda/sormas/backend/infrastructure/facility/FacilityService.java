@@ -176,6 +176,11 @@ public class FacilityService extends AbstractInfrastructureAdoService<Facility, 
 				.filter(facility -> FacilityType.LABORATORY.equals(facility.getType()))
 				.sorted(Comparator.comparing(Facility::getName))
 				.collect(Collectors.toList());
+
+		if (facilities.size() < 1) {
+			facilities = getAllActiveLaboratories(true);
+		}
+
 		return facilities;
 	}
 
