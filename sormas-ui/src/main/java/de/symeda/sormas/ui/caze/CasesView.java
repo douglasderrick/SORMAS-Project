@@ -367,6 +367,8 @@ public class CasesView extends AbstractView {
 				addExportButton(bagExportResource, exportPopupButton, exportLayout, VaadinIcons.FILE_TEXT, Captions.BAGExport, Strings.infoBAGExport);
 			}
 
+
+
 			{
 				Button btnCustomCaseExport = ButtonHelper.createIconButton(Captions.exportCaseCustom, VaadinIcons.FILE_TEXT, e -> {
 					Window customExportWindow = VaadinUiUtil.createPopupWindow();
@@ -395,6 +397,22 @@ public class CasesView extends AbstractView {
 				btnCustomCaseExport.setDescription(I18nProperties.getString(Strings.infoCustomExport));
 				btnCustomCaseExport.setWidth(100, Unit.PERCENTAGE);
 				exportLayout.addComponent(btnCustomCaseExport);
+			}
+
+			{
+				StreamResource exportStreamResource = CaseDownloadUtil.createCaseSamplesExportResource(
+						grid.getCriteria(),
+						this::getSelectedRows,
+						CaseExportType.CASE_SURVEILLANCE,
+						detailedExportConfiguration);
+
+				addExportButton(
+						exportStreamResource,
+						exportPopupButton,
+						exportLayout,
+						VaadinIcons.FILE_TEXT,
+						Captions.exportCaseSamplesDetailed,
+						Strings.infoDetailedExport);
 			}
 
 			{
